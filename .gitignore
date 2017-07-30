@@ -1,4 +1,5 @@
 .vscode
 *.[Oo]
 *.[Oo]ut
+*.ppm
 smallrt

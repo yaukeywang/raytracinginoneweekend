@@ -18,7 +18,7 @@ endif
 default: &(ALL_R)
 
 &(ALL_R) : $(ALL_MAIN_O) $(ALL_BASE_O)
-	$(CPP) -o &(CPPLDFLAGS) $(ALL_R) $(ALL_MAIN_O) $(ALL_BASE_O)
+	$(CPP) -o $(CPPLDFLAGS) $(ALL_R) $(ALL_MAIN_O) $(ALL_BASE_O)
 
 clean:
 	$(RM) $(ALL_R) $(ALL_MAIN_O) $(ALL_BASE_O) $(ALL_TEMP)
