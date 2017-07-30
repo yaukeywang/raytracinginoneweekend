@@ -66,5 +66,9 @@ int main()
     }
 
     result.close();
+
+    // Caution: need to fix memory leak!
+    // ...
+
     return 0;
 }
