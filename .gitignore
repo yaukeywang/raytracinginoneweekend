@@ -1,3 +1,4 @@
 .vscode
-.[Oo]
-.[Oo]ut
+*.[Oo]
+*.[Oo]ut
+smallrt
