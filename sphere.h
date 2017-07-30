@@ -1,5 +1,5 @@
 // Add by yaukey at 2017-07-30.
-// Sphere base class.
+// Sphere class.
 
 #ifndef SPHEREH
 #define SPHEREH

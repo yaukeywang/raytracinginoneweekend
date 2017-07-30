@@ -1,5 +1,5 @@
 // Add by yaukey at 2017-07-30.
-// hitable base class.
+// Hitable base class.
 
 #ifndef HITABLEH
 #define HITABLEH
