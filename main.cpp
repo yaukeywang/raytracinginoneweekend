@@ -44,6 +44,7 @@ int main()
     result.open(file_name);
     result << "P3\n" << nx << " " << ny << "\n255\n";
 
+    // Dielectric material.
     hitable* list[5];
     list[0] = new sphere(vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(vec3(0.1f, 0.2f, 0.5f)));
     list[1] = new sphere(vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(vec3(0.8f, 0.8f, 0.0f)));
@@ -51,8 +52,14 @@ int main()
     list[3] = new sphere(vec3(-1.0f, 0.0f, -1.0f), 0.5f, new dielectric(1.5f));
     list[4] = new sphere(vec3(-1.0f, 0.0f, -1.0f), -0.45f, new dielectric(1.5f));
 
+    // // Positionable camera test.
+    // hitable* list[2];
+    // float R = cos(M_PI / 4.0f);
+    // list[0] = new sphere(vec3(-R, 0.0f, -1.0f), R, new lambertian(vec3(0.0f, 0.0f, 1.0f)));
+    // list[1] = new sphere(vec3(R, 0.0f, -1.0f), R, new lambertian(vec3(1.0f, 0.0f, 0.0f)));
+
     hitable* world = new hitable_list(list, 5);
-    camera cam;
+    camera cam(vec3(-2.0f, 2.0f, 1.0f), vec3(0.0f, 0.0f, -1.0f), vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny));
 
     for (int j = ny - 1; j >= 0; j--)
     {
