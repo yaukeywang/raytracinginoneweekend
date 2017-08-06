@@ -23,6 +23,22 @@ vec3 reflect(const vec3& v, const vec3& n)
     return v - 2.0f * dot(v, n) * n;
 }
 
+bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted)
+{
+    vec3 uv = unit_vector(v);
+    float dt = dot(uv, n);
+    float discriminant = 1.0f - ni_over_nt * ni_over_nt * (1.0f - dt * dt);
+    if (discriminant > 0)
+    {
+        refracted = ni_over_nt * (uv - n * dt) - n * sqrt(discriminant);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 class material
 {
 public:
@@ -61,6 +77,45 @@ public:
     }
 
     vec3 albedo;
+};
+
+class dielectric : public material
+{
+public:
+    dielectric(float ri) : ref_idx(ri) {}
+
+    virtual bool scatter(const ray& r, const hit_record& rec, vec3& attenuation, ray& scattered) const
+    {
+        vec3 outward_normal;
+        vec3 reflected = reflect(r.direction(), rec.normal);
+
+        float ni_over_nt;
+        attenuation = vec3(1.0f, 1.0f, 1.0f);
+        vec3 refracted;
+        if (dot(r.direction(), rec.normal) > 0.0f)
+        {
+            outward_normal = -rec.normal;
+            ni_over_nt = ref_idx;
+        }
+        else
+        {
+            outward_normal = rec.normal;
+            ni_over_nt = 1.0f / ref_idx;
+        }
+
+        if (refract(r.direction(), outward_normal, ni_over_nt, refracted))
+        {
+            scattered = ray(rec.p, refracted);
+            return true;
+        }
+        else
+        {
+            scattered = ray(rec.p, reflected);
+            return false;
+        }
+    }
+
+    float ref_idx;
 };
 
 #endif
