@@ -8,7 +8,7 @@ CPPLDFLAGS =
 ALL_R = smallrt
 ALL_MAIN_O = main.o
 ALL_BASE_O = 
-ALL_TEMP = *.o *.out *.ppm
+ALL_TEMP = *.o *.out result.ppm
 RM = rm -f
 
 ifdef DEBUG

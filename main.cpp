@@ -33,24 +33,67 @@ vec3 color(const ray& r, hitable* world, int depth)
     }
 }
 
+hitable* random_scene()
+{
+    int n = 500;
+    hitable** list = new hitable*[n + 1];
+    list[0] = new sphere(vec3(0.0f, -1000.0f, 0.0f), 1000.0f, new lambertian(vec3(0.5f, 0.5f, 0.5f)));
+    
+    int i = 1;
+    for (int a = -11; a < 11; a++)
+    {
+        for (int b = -11; b < 11; b++)
+        {
+            float choose_mat = drand48();
+            vec3 center(a + 0.9f * drand48(), 0.2f, b + 0.9f * drand48());
+            if ((center - vec3(4.0f, 0.2f, 0.0f)).length() > 0.9f)
+            {
+                if (choose_mat < 0.8f)
+                {
+                    // Diffuse.
+                    list[i++] = new sphere(center, 0.2f, 
+                        new lambertian(vec3(drand48() * drand48(), drand48() * drand48(), drand48() * drand48())));
+                }
+                else if (choose_mat < 0.95)
+                {
+                    // Metal.
+                    list[i++] = new sphere(center, 0.2f,
+                        new metal(vec3(0.5f * (1.0f + drand48()), 0.5f * (1.0f + drand48()), 0.5f * (1.0f + drand48())), 0.5f * drand48()));
+                }
+                else
+                {
+                    // Glass.
+                    list[i++] = new sphere(center, 0.2f, new dielectric(1.5f));
+                }
+            }
+        }
+    }
+
+    list[i++] = new sphere(vec3(0.0f, 1.0f, 0.0f), 1.0f, new dielectric(1.5f));
+    list[i++] = new sphere(vec3(-4.0f, 1.0f, 0.0f), 1.0f, new lambertian(vec3(0.4f, 0.2f, 0.1f)));
+    list[i++] = new sphere(vec3(4.0f, 1.0f, 0.0f), 1.0f, new metal(vec3(0.7f, 0.6f, 0.5f), 0.0f));
+
+    return new hitable_list(list, i);
+}
+
 int main()
 {
-    int nx = 200;
-    int ny = 100;
-    int ns = 100;
+    int nx = 1200;
+    int ny = 800;
+    int ns = 10;
 
     const char* file_name = "result.ppm";
     std::ofstream result;
     result.open(file_name);
     result << "P3\n" << nx << " " << ny << "\n255\n";
 
-    // Dielectric material.
-    hitable* list[5];
-    list[0] = new sphere(vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(vec3(0.1f, 0.2f, 0.5f)));
-    list[1] = new sphere(vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(vec3(0.8f, 0.8f, 0.0f)));
-    list[2] = new sphere(vec3(1.0f, 0.0f, -1.0f), 0.5f, new metal(vec3(0.8f, 0.6f, 0.2f)));
-    list[3] = new sphere(vec3(-1.0f, 0.0f, -1.0f), 0.5f, new dielectric(1.5f));
-    list[4] = new sphere(vec3(-1.0f, 0.0f, -1.0f), -0.45f, new dielectric(1.5f));
+    // // Dielectric material.
+    // hitable* list[5];
+    // list[0] = new sphere(vec3(0.0f, 0.0f, -1.0f), 0.5f, new lambertian(vec3(0.1f, 0.2f, 0.5f)));
+    // list[1] = new sphere(vec3(0.0f, -100.5f, -1.0f), 100.0f, new lambertian(vec3(0.8f, 0.8f, 0.0f)));
+    // list[2] = new sphere(vec3(1.0f, 0.0f, -1.0f), 0.5f, new metal(vec3(0.8f, 0.6f, 0.2f)));
+    // list[3] = new sphere(vec3(-1.0f, 0.0f, -1.0f), 0.5f, new dielectric(1.5f));
+    // list[4] = new sphere(vec3(-1.0f, 0.0f, -1.0f), -0.45f, new dielectric(1.5f));
 
     // // Positionable camera test.
     // hitable* list[2];
@@ -58,12 +101,15 @@ int main()
     // list[0] = new sphere(vec3(-R, 0.0f, -1.0f), R, new lambertian(vec3(0.0f, 0.0f, 1.0f)));
     // list[1] = new sphere(vec3(R, 0.0f, -1.0f), R, new lambertian(vec3(1.0f, 0.0f, 0.0f)));
 
-    hitable* world = new hitable_list(list, 5);
+    //hitable* world = new hitable_list(list, 5);
 
-    vec3 lookfrom(3.0f, 3.0f, 2.0f);
-    vec3 lookat(0.0f, 0.0f, -1.0f);
-    float dist_to_focus = (lookfrom - lookat).length();
-    float aperture = 2.0f;
+    // The cover page scene.
+    hitable* world = random_scene();
+
+    vec3 lookfrom(13.0f, 2.0f, 3.0f);
+    vec3 lookat(0.0f, 0.0f, 0.0f);
+    float dist_to_focus = 10.0f;
+    float aperture = 0.1f;
     camera cam(lookfrom, lookat, vec3(0.0f, 1.0f, 0.0f), 20.0f, float(nx) / float(ny), aperture, dist_to_focus);
 
     for (int j = ny - 1; j >= 0; j--)
