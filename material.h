@@ -39,6 +39,13 @@ bool refract(const vec3& v, const vec3& n, float ni_over_nt, vec3& refracted)
     }
 }
 
+float schlick(float cosine, float ref_idx)
+{
+    float r0 = (1.0f - ref_idx) / (1.0f + ref_idx);
+    r0 = r0 * r0;
+    return r0 + (1.0f - r0) * pow(1.0f - cosine, 5.0f);
+}
+
 class material
 {
 public:
@@ -92,27 +99,46 @@ public:
         float ni_over_nt;
         attenuation = vec3(1.0f, 1.0f, 1.0f);
         vec3 refracted;
+
+        float reflect_prob;
+        float cosine;
+
         if (dot(r.direction(), rec.normal) > 0.0f)
         {
             outward_normal = -rec.normal;
             ni_over_nt = ref_idx;
+            cosine = ref_idx * dot(r.direction(), rec.normal) / r.direction().length();
+
+            // cosine = dot(r.direction(), rec.normal) / r.direction().length();
+            // cosine = sqrt(1 - ref_idx*ref_idx*(1-cosine*cosine));
         }
         else
         {
             outward_normal = rec.normal;
             ni_over_nt = 1.0f / ref_idx;
+            cosine = -dot(r.direction(), rec.normal) / r.direction().length();
         }
 
         if (refract(r.direction(), outward_normal, ni_over_nt, refracted))
         {
-            scattered = ray(rec.p, refracted);
-            return true;
+            reflect_prob = schlick(cosine, ref_idx);
         }
         else
         {
-            scattered = ray(rec.p, reflected);
-            return false;
+            //scattered = ray(rec.p, reflected);
+            reflect_prob = 1.0f;
         }
+
+        if (drand48() < reflect_prob)
+        {
+            scattered = ray(rec.p, reflected);
+        }
+        else
+        {
+            scattered = ray(rec.p, refracted);
+        }
+
+        return true;
     }
 
     float ref_idx;
